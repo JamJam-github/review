@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="triple.review.dao.UserDAO">
+    <select id="selectUser" resultType="UserDTO">
+        SELECT `user_id`, `tot_point`
+        FROM user
+        WHERE user_id = #{userId}
+    </select>
+
+    <insert id="saveUser">
+        INSERT INTO user (user_id, tot_point)
+        values ( #{userId}, (SELECT COALESCE(SUM(POINT), 0)
+                            FROM REVIEW_M
+                            WHERE USER_ID = #{userId}
+                            AND DEL_YN = 'N')
+        )
+        ON DUPLICATE KEY UPDATE
+        tot_point = (SELECT COALESCE(SUM(POINT), 0)
+                    FROM REVIEW_M
+                    WHERE USER_ID = #{userId}
+                    AND DEL_YN = 'N')
+    </insert>
+</mapper>

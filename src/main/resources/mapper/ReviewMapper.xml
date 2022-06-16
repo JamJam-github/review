@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="triple.review.dao.ReviewDAO">
+    <select id="findByPlaceId" resultType="String">
+        SELECT review_id
+        FROM review_m
+        WHERE user_id = #{userId}
+        and place_id = #{placeId}
+        and del_yn = 'N'
+    </select>
+
+    <insert id="saveReview">
+        INSERT INTO REVIEW_M (REVIEW_ID, USER_ID, PLACE_ID, CONTENT, POINT)
+        WITH TMP AS (
+            SELECT  #{reviewId} AS REVIEW_ID,
+                    #{userId} AS USER_ID,
+                    #{placeId} AS PLACE_ID,
+                    #{content} AS CONTENT,
+                    IF(LENGTH(#{content}) >= 1, 1, 0) +
+                    IF(( SELECT COUNT(1)
+                        FROM ATTACH
+                        WHERE REVIEW_ID = #{reviewId}) != 0, 1, 0) +
+                    IF(( SELECT COUNT(1)
+                        FROM REVIEW_M AS TMP
+                        WHERE PLACE_ID = #{placeId}
+                        AND   USER_ID != #{userId}
+                        AND DEL_YN = 'N') = 0, 1, 0) AS POINT
+            FROM DUAL
+        )
+        SELECT REVIEW_ID, USER_ID, PLACE_ID, CONTENT, POINT
+        FROM TMP
+        ON DUPLICATE KEY
+        UPDATE USER_ID = #{userId},
+        PLACE_ID = #{placeId},
+        CONTENT = #{content},
+        POINT = (SELECT POINT FROM TMP),
+        DEL_YN = (CASE WHEN #{action} = "DELETE" THEN "Y" ELSE "N" END)
+    </insert>
+
+    <insert id="saveReviewHistory">
+        INSERT INTO REVIEW_H (REVIEW_ID, ACTION, USER_ID, PLACE_ID, CONTENT, POINT)
+        values ( #{reviewId}, #{action}, #{userId}, #{placeId}, #{content},
+                (SELECT POINT FROM REVIEW_M WHERE REVIEW_ID = #{reviewId})
+        )
+    </insert>
+
+    <insert id="saveAttachPhotoIds" parameterType="java.util.HashMap">
+        INSERT INTO ATTACH (REVIEW_ID, ATTACHED_PHOTOID) VALUES
+        <foreach collection="attachList" item="item" separator=",">
+            (
+                #{item.reviewId},
+                #{item.attachedId}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="removeAttachPhotoId">
+        DELETE FROM ATTACH
+        WHERE REVIEW_ID = #{reviewId}
+    </delete>
+
+</mapper>
