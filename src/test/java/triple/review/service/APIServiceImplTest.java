@@ -51,6 +51,7 @@ class APIServiceImplTest {
         String content = "여행 가자";
         log.info("reviewId={}, userId={}", reviewId, userId);
 
+        // 리뷰 1건 등록 후 해당 userId 조회
         ReviewDTO reviewDTO = new ReviewDTO(reviewId, content, null, userId, placeId, "ADD", "REVIEW");
         apiService.saveReview(reviewDTO);
 
@@ -71,9 +72,11 @@ class APIServiceImplTest {
         attachPhotoId.add(UUID.randomUUID().toString());
         log.info("reviewId={}, userId={}", reviewId, userId);
 
+        // 리뷰 1건 등록
         ReviewDTO addReviewData = new ReviewDTO(reviewId, "여행 여행", null, userId, placeId, "ADD", "REVIEW");
         int cnt = reviewDAO.saveReview(addReviewData);
 
+        // 등록한 리뷰에 사진 ID 첨부
         ReviewDTO modReviewData = new ReviewDTO(reviewId, "여행 수정", attachPhotoId, userId, placeId, "MOD", "REVIEW");
         apiService.saveReview(modReviewData);
 
