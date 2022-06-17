@@ -27,7 +27,7 @@ public class APIServiceImpl implements APIService {
 
         // 조회된 사용자가 없는 경우
         if (user == null) {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.badRequest().build();
         }
         return ResponseEntity.ok().body(user);
     }
@@ -53,7 +53,7 @@ public class APIServiceImpl implements APIService {
                 Map<String, Object> paramMap = new HashMap<>();
                 List<Map<String, Object>> attachMap = new ArrayList<>();
                 for (Object attachId : reviewDTO.getAttachedPhotoIds()) {
-                    Map<String, Object> map = new HashMap<String, Object>();
+                    Map<String, Object> map = new HashMap<>();
                     map.put("reviewId", reviewId);
                     map.put("attachedId", attachId);
                     attachMap.add(map);

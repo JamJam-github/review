@@ -5,8 +5,8 @@
     <select id="findByPlaceId" resultType="String">
         SELECT review_id
         FROM review_m
-        WHERE user_id = #{userId}
-        and place_id = #{placeId}
+        WHERE place_id = #{placeId}
+        and user_id = #{userId}
         and del_yn = 'N'
     </select>
 
@@ -39,8 +39,13 @@
     </insert>
 
     <insert id="saveReviewHistory">
-        INSERT INTO REVIEW_H (REVIEW_ID, ACTION, USER_ID, PLACE_ID, CONTENT, POINT)
-        values ( #{reviewId}, #{action}, #{userId}, #{placeId}, #{content},
+        INSERT INTO REVIEW_H (REVIEW_ID, SEQ, ACTION, USER_ID, PLACE_ID, CONTENT, POINT)
+        values ( #{reviewId},
+                (SELECT COALESCE(MAX(SEQ), 0) + 1 FROM REVIEW_H AS RH WHERE REVIEW_ID = #{reviewId}),
+                #{action},
+                #{userId},
+                #{placeId},
+                #{content},
                 (SELECT POINT FROM REVIEW_M WHERE REVIEW_ID = #{reviewId})
         )
     </insert>
