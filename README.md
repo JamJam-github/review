@@ -8,8 +8,12 @@
 
 
 ### Tests
-create database if not exists triple;
-run ReviewApplication
+MYSQL 스키마를 생성해주세요.
+- create database if not exists triple;
+Application.properties 내 Username, Password를 확인해주세요.
+- Username: root, Password: a123
+애플리케이션을 실행해주세요.
+- run ReviewApplication
 
 
 ### Architecture
